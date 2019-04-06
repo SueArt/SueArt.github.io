@@ -669,7 +669,7 @@
 <script>
     var now = new Date();
     function createtime() {
-        var grt= new Date("05/4/2019 12:34:56");//此处修改你的建站时间或者网站上线时间
+        var grt= new Date("04/05/2019 12:34:56");//此处修改你的建站时间或者网站上线时间
         now.setTime(now.getTime()+250);
         days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
         hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
@@ -1266,4 +1266,7 @@ setInterval("createtime()",250);
   
 
 </body>
+
+<script type="text/javascript" src="/js/src/crash_cheat.js"></script>
+
 </html>
