@@ -8,7 +8,7 @@ document.addEventListener('visibilitychange', function () {
     }
     else {
         $('[rel="icon"]').attr('href', "/images/ok.jpeg");
-        document.title = '噫awa又好了~' + OriginTitle;
+        document.title = '噫awa又好了~'; //+ OriginTitle
         titleTime = setTimeout(function () {
             document.title = OriginTitle;
         }, 2000);
