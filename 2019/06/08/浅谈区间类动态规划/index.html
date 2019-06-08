@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link rel="stylesheet" href="/lib/pace/pace-theme-flash.min.css?v=1.0.2">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="https://s2.ax1x.com/2019/05/18/EOEB4g.png?v=7.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="https://s2.ax1x.com/2019/05/18/EOEB4g.png?v=7.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: true,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="区间动态规划是线性动归的拓展，在划分阶段时，往往是以区间的长度从小到大为阶段，逐步求解到到长度为N的区间的最优值">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈区间类动态规划">
+<meta property="og:url" content="http://yoursite.com/2019/06/08/浅谈区间类动态规划/index.html">
+<meta property="og:site_name" content="Suart&#39;s Blog">
+<meta property="og:description" content="区间动态规划是线性动归的拓展，在划分阶段时，往往是以区间的长度从小到大为阶段，逐步求解到到长度为N的区间的最优值">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/02/VGecM4.jpg">
+<meta property="og:image" content="https://s2.ax1x.com/2019/06/07/V00wHf.png">
+<meta property="og:updated_time" content="2019-06-08T05:48:50.433Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅谈区间类动态规划">
+<meta name="twitter:description" content="区间动态规划是线性动归的拓展，在划分阶段时，往往是以区间的长度从小到大为阶段，逐步求解到到长度为N的区间的最优值">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/06/02/VGecM4.jpg">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2019/06/08/浅谈区间类动态规划/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>浅谈区间类动态规划 | Suart's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Suart's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">Lonely journey</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-留言">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/message/" rel="section"><i class="menu-item-icon fa fa-fw fa-comments"></i> <br>留言</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/08/浅谈区间类动态规划/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SueArt">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="https://s2.ax1x.com/2019/05/18/EOA56I.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Suart's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">浅谈区间类动态规划
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-08 11:00:44 / 修改时间：13:48:50" itemprop="dateCreated datePublished" datetime="2019-06-08T11:00:44+08:00">2019-06-08</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Algorithm/" itemprop="url" rel="index"><span itemprop="name">Algorithm</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+              
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+            
+                <span class="post-meta-item-text">评论数：</span>
+                <a href="/2019/06/08/浅谈区间类动态规划/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count valine-comment-count" data-xid="/2019/06/08/浅谈区间类动态规划/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>区间动态规划是线性动归的拓展，在划分阶段时，往往是以区间的长度从小到大为阶段，逐步求解到到长度为N的区间的最优值</p>
+<a id="more"></a>
+<h1 id="mathcal-Before-mathcal-Writing"><a href="#mathcal-Before-mathcal-Writing" class="headerlink" title="$\mathcal{Before}$ $\mathcal{Writing}$"></a>$\mathcal{Before}$ $\mathcal{Writing}$</h1><p>为了加深印象，写下这则学习笔记 .</p>
+<p>若文中有错误之处还请指出，感激不尽 .</p>
+<p>$\mathcal{PS:}$ 菜鸡笔者水平有限，没写好不要喷我哦qwq</p>
+<h1 id="mathcal-Come-mathcal-into-mathcal-subject"><a href="#mathcal-Come-mathcal-into-mathcal-subject" class="headerlink" title="$\mathcal{Come}$ $\mathcal{into}$ $\mathcal{subject}$"></a>$\mathcal{Come}$ $\mathcal{into}$ $\mathcal{subject}$</h1><p>我们先从一个问题入手。</p>
+<p><a href="https://www.luogu.org/problemnew/show/P1090" target="_blank" rel="noopener">$\mathcal{Problem Link :P1090}$</a></p>
+<p>题解就是将 $n$ 堆果子<strong>任意</strong>两堆合并最终合并成一堆所需要的最小的体力耗费值。很容易想到贪心的方法，即每次合并耗费最小的两堆，可以通过维护一个小根堆实现。这里就不给出代码了，请读者自己实现。</p>
+<p>接下来，考虑如果把题目改为每次只能合并<strong>相邻</strong>的两堆（保证果子都在一条线上，即<strong>第1堆和第 $n$ 堆不算相邻</strong>）那么很明显贪心的思路是行不通的。因此需要换一种算法。 </p>
+<h2 id="mathcal-Solution"><a href="#mathcal-Solution" class="headerlink" title="$\mathcal{Solution}$"></a>$\mathcal{Solution}$</h2><p>我们可以这么想，无论怎么合并这些果子堆，最终都是要合并成一堆的。</p>
+<p>举个例子：假设有5堆果子（编号从1到5）需要合并，那么当她们最终合并成一堆时，一定是由 ①—②③④⑤ | ①②—③④⑤ | ①②③—④⑤ | ①②③④—⑤ 这四种合并方法中的某一种合并得到的（ $a$ — $b$ 表示 $a$ 与 $b$ 合并）。</p>
+<p>也就是我们只需要知道最后一堆是由哪两堆合并而来的，问题也就迎刃而解了。而对于最终解需要最优，也就是合并而来的两堆也要是最优的，这就符合了动态规划最优子结构的性质，而且两堆合并的情况也是独立唯一的，不存在后效性，因此我们可以考虑用动态规划来解决这个问题。</p>
+<p><strong>约定</strong>：$H(a,b)$ 表示将编号从 $a$ 至 $b$ 的<strong>所有堆</strong>合并后得到的<strong>一个堆</strong></p>
+<p><strong>描述状态</strong></p>
+<p>令 $dp[i][j]$ 表示将编号从 $i$ 至 $j$ 的所有果子堆合并能得到的最小体力耗费值（也就是 $H(i,j)$ 的最小值）。因为 $H(i,j)$ 是由 $H(i,k)$ 和 $H(k+1,j)$ 合并得到的，即上述例子中<br>$H(1,5)=min\begin{cases}H(1,1)+H(2,5)\\H(1,2)+H(3,5)\\H(1,3)+H(4,5)\\H(1,4)+H(5,5)\end{cases}$</p>
+<p>由此我们可以得到<strong>状态转移方程</strong></p>
+<p>$dp[i][j]=min\{ dp[i][k]+dp[k+1][j] \}+cost(i,j)$ $     (1\leq i \leq j \leq n,i\leq k \leq j-1)$</p>
+<p>所以我们去枚举 $i,j,k$ 就好了，最终的解即为 $dp[1][n]$ 。也就是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">初始化 dp[i][i]=<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=N;++i)</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> j=i;j&lt;=N;++j)&#123;</span><br><span class="line">  	<span class="keyword">for</span>(<span class="keyword">int</span> k=i;k&lt;=j<span class="number">-1</span>;++k)</span><br><span class="line">  	  dp[i][j]=min(dp[i][j],dp[i][k]+dp[k+<span class="number">1</span>][j]+cost(i,j));</span><br><span class="line">  	<span class="comment">/* dp[i][j]+=cost(i,j);  状态转移方程中的 +cost(...) 操作也可以放到循环外面来做，对于此题没有影响 </span></span><br><span class="line"><span class="comment">  	   cost可以是一个计算花费的函数，也可以是一个数组，具体看题目而定，而在本题中表示 H(i,j) 的值，可以使用</span></span><br><span class="line"><span class="comment">       前缀和，即将函数cost(i,j)用来计算sum[j]-sum[i-1] </span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Res=dp[<span class="number">1</span>][N];</span><br></pre></td></tr></table></figure>
+<p>通常 $dp$ 数组的第一维是阶段，第二维是状态。但如果你对动态规划的概念非常清楚，那么就会发现这么做其实是有问题的，因为这里的 $i$ <strong>并不能作为阶段</strong>。</p>
+<p>还是拿之前的例子来说，对于动态规划的最优子结构性质，我们要求当做到 $dp[1][5]$ 时，她的子问题 $dp[1][1],$ $dp[1][2]$ $…$ $dp[4][5]$  必须都是已经确定且最优的，但放入我们写的循环里看，做到 $dp[1][5]$ 时，需要用到的 $dp[2][3]$ $,dp[2][4]…$ $dp[4][5]$ 全都还没有确定。</p>
+<p>你也可以这么想，对于上面的状态转移方程的变量范围 $ 1\leq i \leq j \leq n , i\leq k \leq j-1   $<br>很明显，结合转移方程来看，$dp[k+1][j]$ 这个数组的阶段 $k+1$ 是会大于 $i$ 这个阶段的，也就是阶段 $i$ 的所有状态还没确定好，就用到了后面等待确定的阶段 $k+1$ 中的状态，这显然是错误的。</p>
+<p>下面我们就要来考虑到底以什么来作为阶段了。</p>
+<p>我们可以发现，对于 $H(1,5)$ ，她是由5个堆合并得到的，而她的子问题 $H(1,2),$ $H(2,4)$ 等，都是属于由2~4个的堆合并得到的，即要确定由 $n$ 个堆合并而成的 $H(a,a+n-1)$ 时，我们要做的是确定由2至 $n-1$ 个堆合并而成的 $H(a,a+k-1)$ 。因为 $k$ 一定小于 $n$ ，所以我们可以将<strong>合并的堆数</strong>作为阶段。发现合并的堆数知道了，只要知道合并操作的起始堆的位置，就能够算出终止堆的位置。</p>
+<p>下面给出正确的伪代码</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">初始化 dp[i][i]=<span class="number">0</span>; </span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> L=<span class="number">2</span>;L&lt;=N;++L) <span class="comment">//这里合并的堆数从2开始，也就是最少两个堆合并</span></span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i+L<span class="number">-1</span>&lt;=N;++i)&#123;  <span class="comment">//枚举起点</span></span><br><span class="line">  	<span class="keyword">int</span> j=i+L<span class="number">-1</span>;  <span class="comment">//由起点计算出终点</span></span><br><span class="line">  	<span class="keyword">for</span>(<span class="keyword">int</span> k=i;k&lt;=j<span class="number">-1</span>;++k)</span><br><span class="line">  	  dp[i][j]=min(dp[i][j],dp[i][k]+dp[k+<span class="number">1</span>][j]+cost(i,j));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Res=dp[<span class="number">1</span>][N];</span><br></pre></td></tr></table></figure>
+<p>至此，问题已经得到解决。</p>
+<h2 id="end"><a href="#end" class="headerlink" title="$end.$"></a>$end.$</h2><p>上述代码就是区间类动态规划的思想，基本套路就是<strong>1.枚举区间长度</strong> <strong>2.枚举起点，算出终点</strong> <strong>3.枚举过渡点</strong> <strong>4.转移状态</strong>。</p>
+<p>但是现在广大<del>毒瘤</del>出题人当然不会给你太裸的模型来做，所以他们会在一些 描述状态、转移状态、或者 在进行 $dp$ 前的处理 等方面做文章。其中环形区间动规最为经典，本文就以此为例进行分析。</p>
+<p>我们可以对之前的题目再次进行修改：将 $n$ 堆果子<strong>围成一圈</strong>，每次只能合并<strong>相邻</strong>的两堆，其他约定与原题一致，问最少的体力耗费值。</p>
+<h2 id="mathcal-Solution-1"><a href="#mathcal-Solution-1" class="headerlink" title="$\mathcal{Solution}$"></a>$\mathcal{Solution}$</h2><p>我们来看一张图</p>
+<p><img src="https://s2.ax1x.com/2019/06/02/VGecM4.jpg" alt></p>
+<p>可以看出，环状分布解法其实就相当于从环上取一条长为 $n$ 的链，而我们做前面题目的解 $dp[1][N]$ 只是在这个环上取链的其中一种情况。</p>
+<p>较朴素的做法就是在原先的循环最外层再套一层循环，枚举链的起点，还请读者自行尝试。这里主要介绍一种环形区间动规的经典解法。</p>
+<p><strong>割环</strong></p>
+<p>显然，既然是环，我们可以考虑在环上“切”一刀，使其变成一条链。这样由环转链，是解决环形区间动规较常用的一种方法，对于图示中的环，我们就可以将其表示为： <code>123451234</code> 也就是将长度为 $n$ 的环变成了长度为 $2n-1$ 的链。那么最优解就在 <code>12345</code> <code>23451</code> <code>34512</code> <code>45123</code> <code>51234</code> 中。</p>
+<p>你会发现，接下来的操作便和之前的写法完全一样了</p>
+<p>伪代码如下</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">初始化 dp[i][i]=<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=N;++i) a[i]=a[i+N]=read();  由环转链 </span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> L=<span class="number">2</span>;L&lt;=N;++L)</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i+L<span class="number">-1</span>&lt;=<span class="number">2</span>*N<span class="number">-1</span>;++i)&#123;</span><br><span class="line">  	<span class="keyword">int</span> j=i+L<span class="number">-1</span>;</span><br><span class="line">  	<span class="keyword">for</span>(<span class="keyword">int</span> k=i;k&lt;=j<span class="number">-1</span>;++k)</span><br><span class="line">  	  dp[i][j]=min(dp[i][j],dp[i][k]+dp[k+<span class="number">1</span>][j]+cost(...));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Res=min&#123;dp[i][i+N<span class="number">-1</span>]&#125;  <span class="number">1</span>&lt;=i&lt;=N</span><br></pre></td></tr></table></figure>
+<p>理解了之后，就可以尝试做这两道环形区间动规的经典题目。（如果还有例题可以提出来哦）</p>
+<p><a href="https://www.luogu.org/problemnew/show/P1880" target="_blank" rel="noopener">$\mathcal{Problem Link : P1880}$</a></p>
+<p><a href="https://www.luogu.org/problemnew/show/P1063" target="_blank" rel="noopener">$\mathcal{Problem Link : P1063}$</a></p>
+<h2 id="end-1"><a href="#end-1" class="headerlink" title="$end.$"></a>$end.$</h2><p>我们再来看一道挺有意思的题目</p>
+<h2 id="mathcal-Description"><a href="#mathcal-Description" class="headerlink" title="$\mathcal{Description:}$"></a>$\mathcal{Description:}$</h2><p>给定一个具有 $N$ 个顶点的凸多边形，将顶点从1至 $N$ 标号，每个顶点的权值都是一个正整数。将这个凸多边形划分成 $N-2$ 个互不相交的三角形，试求这些三角形顶点的权值乘积和至少为多少。</p>
+<h2 id="mathcal-Solution-2"><a href="#mathcal-Solution-2" class="headerlink" title="$\mathcal{Solution}$"></a>$\mathcal{Solution}$</h2><p><strong>约定</strong>： $P(a,b)$ 表示从点 $a$ 至 $b$ 顺时针连线组成的<strong>多边形</strong>划分三角形后能得到权值乘积和</p>
+<p>对于题目给出的 $N$ 多边形，我们将她的顶点按顺时针方向 $1-N$  编号。</p>
+<p>我们可以这么想，对于最终的最优解 $P(1,N)$ ，因为此时点之间的分割线已经确定，那么我们如果割去这个 $N$ 边形外部的<strong>某一块</strong>三角形，剩下的多边形也必然是符合边数等于 $N-1$ 时的最优解的。也就是说，这符合动态规划的最优子结构的性质，并且每一种割法都是独立唯一的，不具有后效性，这也符合动态规划的原则。因此，我们可以确定了算法框架：动态规划。</p>
+<p><img src="https://s2.ax1x.com/2019/06/07/V00wHf.png" alt></p>
+<p>令 $dp[i][j]$ 表示从点 $i$ 至 $j$ 顺时针连线组成的<strong>多边形</strong>划分三角形后能得到的<strong>最小权值乘积和</strong>（即 $P(i,j)$ 的最小值 ）。结合上图看，显然，我们要求的 $P(i,j)$ 的值就等于 $P(i,k)$ $+$ $P(k,j)$ $+$ $W(i)×W(j)×W(k)$</p>
+<p>由此得到状态转移方程</p>
+<p>$dp[i][j]=min\{ dp[i][k]+dp[k][j]+W(i)×W(j)×W(k) \}$ $     (1\leq i &lt; j \leq n,i&lt; k &lt; j)$</p>
+<p>于是，你会发现这又是一道区间类动态规划，接下来的做法就和前面相似了。下面是伪代码</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">初始化 dp[i][i+<span class="number">1</span>]=<span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> L=<span class="number">2</span>;L&lt;=N<span class="number">-1</span>;++L)</span><br><span class="line">	  <span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> i=<span class="number">1</span>;i+L&lt;=N;++i)&#123;</span><br><span class="line">	  	<span class="keyword">int</span> j=i+L;</span><br><span class="line">	  	<span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> k=i+<span class="number">1</span>;k&lt;=j<span class="number">-1</span>;++k)</span><br><span class="line">	  	  dp[i][j]=min(dp[i][j],dp[i][k]+dp[k][j]+a[i]*a[j]*a[k]);</span><br><span class="line">	&#125;</span><br><span class="line">    </span><br><span class="line">Res=dp[<span class="number">1</span>][N]</span><br></pre></td></tr></table></figure>
+<p>另外，此题我跑了好几个oj好像都没有找到，所以我造了数据放在私人题库里了，有兴趣写一写的可以来<a href="https://www.luogu.org/problemnew/show/U73447" target="_blank" rel="noopener">这里qwq</a>，<strong>由于原题数据原因需要用到高精度</strong>，顺手练练自己的高精度好啦。</p>
+<p>这里放上代码</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ll long long</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> qomzi(n,i) for(register int i=1;i&lt;=(n);++i)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> INF 1e9</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> Maxn=<span class="number">160</span>;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">int</span> <span class="title">icin</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> c=getchar();<span class="keyword">int</span> s=<span class="number">0</span>;<span class="keyword">bool</span> sign=<span class="number">0</span>;</span><br><span class="line">	<span class="keyword">while</span>(!<span class="built_in">isdigit</span>(c)&amp;&amp;c^<span class="string">'-'</span>)c=getchar();</span><br><span class="line">	<span class="keyword">if</span>(c==<span class="string">'-'</span>)c=getchar(),sign=<span class="number">1</span>;</span><br><span class="line">	<span class="keyword">while</span>(<span class="built_in">isdigit</span>(c))s=(s&lt;&lt;<span class="number">1</span>)+(s&lt;&lt;<span class="number">3</span>)+c-<span class="string">'0'</span>,c=getchar();</span><br><span class="line">	<span class="keyword">return</span> sign?-s:s;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> N;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Node</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> len,num[Maxn&lt;&lt;<span class="number">1</span>];</span><br><span class="line">    Node()&#123;len=<span class="number">1</span>;<span class="built_in">memset</span>(num,<span class="number">0</span>,<span class="keyword">sizeof</span>(num));&#125;</span><br><span class="line">    </span><br><span class="line">    Node <span class="keyword">operator</span> * (<span class="keyword">const</span> Node &amp;A)<span class="keyword">const</span>&#123;</span><br><span class="line">    	Node ret; </span><br><span class="line">    	ret.len=A.len+len<span class="number">-1</span>;</span><br><span class="line">    	<span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=A.len;++i)</span><br><span class="line">    	  <span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> j=<span class="number">1</span>;j&lt;=len;++j)</span><br><span class="line">    	    ret.num[i+j<span class="number">-1</span>]+=A.num[i]*num[j],ret.num[i+j]+=ret.num[i+j<span class="number">-1</span>]/<span class="number">10</span>,ret.num[i+j<span class="number">-1</span>]%=<span class="number">10</span>;</span><br><span class="line">	    <span class="keyword">while</span>(ret.num[ret.len+<span class="number">1</span>]&gt;<span class="number">0</span>)ret.len++;</span><br><span class="line">	    <span class="keyword">return</span> ret;</span><br><span class="line">	&#125;</span><br><span class="line">	Node <span class="keyword">operator</span> + (<span class="keyword">const</span> Node &amp;A)<span class="keyword">const</span>&#123;</span><br><span class="line">		Node ret;</span><br><span class="line">		ret.len=max(A.len,len);</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=ret.len;++i)</span><br><span class="line">		  ret.num[i]+=A.num[i]+num[i],ret.num[i+<span class="number">1</span>]+=ret.num[i]/<span class="number">10</span>,ret.num[i]%=<span class="number">10</span>;</span><br><span class="line">		<span class="keyword">while</span>(ret.num[ret.len+<span class="number">1</span>]&gt;<span class="number">0</span>) ret.len++;</span><br><span class="line">		<span class="keyword">return</span> ret;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">print</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">int</span> f=len;</span><br><span class="line">		<span class="keyword">while</span>(!num[f]&amp;&amp;f&gt;<span class="number">1</span>) f--;</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> i=f;i&gt;=<span class="number">1</span>;--i) <span class="built_in">printf</span>(<span class="string">"%d"</span>,num[i]);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;dp[Maxn][Maxn],a[Maxn];</span><br><span class="line"><span class="function">Node <span class="title">High</span><span class="params">(<span class="keyword">int</span> a)</span></span>&#123;</span><br><span class="line">    Node ret;<span class="comment">//cout&lt;&lt;a&lt;&lt;endl;</span></span><br><span class="line">    <span class="keyword">while</span>(a&gt;<span class="number">0</span>)&#123;</span><br><span class="line">    	ret.num[ret.len++]=a%<span class="number">10</span>;</span><br><span class="line">    	a/=<span class="number">10</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//ret.print();cout&lt;&lt;'\n';</span></span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">Node <span class="title">Min</span><span class="params">(Node x,Node y)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> lenx=x.len,leny=y.len;</span><br><span class="line">	<span class="keyword">if</span>(lenx&lt;leny) <span class="keyword">return</span> x;</span><br><span class="line">	<span class="keyword">if</span>(lenx&gt;leny) <span class="keyword">return</span> y;</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> i=lenx;i&gt;=<span class="number">1</span>;--i)&#123;</span><br><span class="line">	    <span class="keyword">if</span>(x.num[i]&lt;y.num[i]) <span class="keyword">return</span> x;</span><br><span class="line">	      <span class="keyword">else</span> <span class="keyword">if</span>(x.num[i]&gt;y.num[i]) <span class="keyword">return</span> y;	</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span></span>&#123;</span><br><span class="line">	N=icin();</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> i=<span class="number">0</span>;i&lt;=N;++i)</span><br><span class="line">	  <span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> j=<span class="number">0</span>;j&lt;=N;++j)</span><br><span class="line">	    dp[i][j].len=<span class="number">250</span>,dp[i][j].num[<span class="number">250</span>]=<span class="number">9</span>;</span><br><span class="line">	qomzi(N,i) a[i]=High(icin()),dp[i][i+<span class="number">1</span>].len=dp[i][i+<span class="number">1</span>].num[<span class="number">250</span>]=<span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	init();</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> L=<span class="number">2</span>;L&lt;=N<span class="number">-1</span>;++L)</span><br><span class="line">	  <span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> i=<span class="number">1</span>;i+L&lt;=N;++i)&#123;</span><br><span class="line">	  	<span class="keyword">int</span> j=i+L;</span><br><span class="line">	  	<span class="keyword">for</span>(<span class="keyword">register</span> <span class="keyword">int</span> k=i+<span class="number">1</span>;k&lt;=j<span class="number">-1</span>;++k)</span><br><span class="line">	  	  dp[i][j]=Min(dp[i][j],dp[i][k]+dp[k][j]+a[i]*a[j]*a[k]);</span><br><span class="line">	&#125;</span><br><span class="line">	dp[<span class="number">1</span>][N].print();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="end-2"><a href="#end-2" class="headerlink" title="$end.$"></a>$end.$</h2><h1 id="mathcal-After-mathcal-Writing"><a href="#mathcal-After-mathcal-Writing" class="headerlink" title="$\mathcal{After}$ $\mathcal{Writing}$"></a>$\mathcal{After}$ $\mathcal{Writing}$</h1><p>经过分析了几道区间类动态规划的题目，相信你一定有所领悟了吧，尽管此类dp或许会有大致的框架，但在解题时还是不能死板盲目地想当然放上模板做法，因为针对不同的题目代码内容还是会有微小的变化的。所以在做题目时，我们要将所给的问题一层一层地剥开，最后找到问题的实质，这样，面对动态规划的题目就可以得心应手啦。</p>
+<p>这里放上网上的一位博主对区间类型dp的理解</p>
+<blockquote>
+<p>“区间动态规划是线性动归的拓展，在划分阶段时，往往是以区间的长度从小到大为阶段，逐步求解到到长度为N的区间的最优值，在枚举每一个区间的最优值时，由于当前区间内又有很多种合并方式并到到当前区间，那么就需要枚举这些合并方式中产生的值维护最优值，合并的不同，可以看作是区间划分的不同，划分时需要枚举划分的位置，即分割点。 那么对于区间类动态规划问题，往往可以将问题分解成为两两合并的形式。其解决方法是对整个问题设最优解，枚举分割点，维护最优值。 </p>
+</blockquote>
+<p>现在再看这段话就一定会觉得很有感触了吧qwq</p>
+<p>最后，如果你认真看了这篇文章，或多或少一定会有点收获叭（dalao请忽略qwq）。如果你还有什么问题请发在讨论区或者私信我，我会不定时解疑的。</p>
+<p>另外笔者文化课水平欠佳，有些抽象的意思实在不能解释的很清楚，还请你们自行画图列表帮助理解哦。</p>
+<h1 id="End"><a href="#End" class="headerlink" title="${End.}$"></a>${End.}$</h1>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="https://s2.ax1x.com/2019/05/18/EOA56I.jpg" alt="SueArt">
+            
+              <p class="site-author-name" itemprop="name">SueArt</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.luogu.org/space/show?uid=82494" title="Luogu &rarr; https://www.luogu.org/space/show?uid=82494" rel="noopener" target="_blank"><i class="fa fa-fw fa-code"></i>Luogu</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/SueArt" title="GitHub &rarr; https://github.com/SueArt" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-heart"></i>
+                友链
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://accute.github.io/" title="https://accute.github.io/" rel="noopener" target="_blank">Rem</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#mathcal-Before-mathcal-Writing"><span class="nav-number">1.</span> <span class="nav-text">$\mathcal{Before}$ $\mathcal{Writing}$</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mathcal-Come-mathcal-into-mathcal-subject"><span class="nav-number">2.</span> <span class="nav-text">$\mathcal{Come}$ $\mathcal{into}$ $\mathcal{subject}$</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#mathcal-Solution"><span class="nav-number">2.1.</span> <span class="nav-text">$\mathcal{Solution}$</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#end"><span class="nav-number">2.2.</span> <span class="nav-text">$end.$</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mathcal-Solution-1"><span class="nav-number">2.3.</span> <span class="nav-text">$\mathcal{Solution}$</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#end-1"><span class="nav-number">2.4.</span> <span class="nav-text">$end.$</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mathcal-Description"><span class="nav-number">2.5.</span> <span class="nav-text">$\mathcal{Description:}$</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mathcal-Solution-2"><span class="nav-number">2.6.</span> <span class="nav-text">$\mathcal{Solution}$</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#end-2"><span class="nav-number">2.7.</span> <span class="nav-text">$end.$</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mathcal-After-mathcal-Writing"><span class="nav-number">3.</span> <span class="nav-text">$\mathcal{After}$ $\mathcal{Writing}$</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#End"><span class="nav-number">4.</span> <span class="nav-text">${End.}$</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <!-- 在网页底部添加网站运行时间 -->
+<span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+<script>
+    var now = new Date();
+    function createtime() {
+        var grt= new Date("04/05/2019 12:34:56");//此处修改你的建站时间或者网站上线时间
+        now.setTime(now.getTime()+250);
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days);
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours);
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;}
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;}
+        document.getElementById("timeDate").innerHTML = "本小屋已破壳 "+dnum+" 天 ";
+        document.getElementById("times").innerHTML = hnum + " 时 " + mnum + " 分 " + snum + " 秒";
+    }
+setInterval("createtime()",250);
+</script>
+
+
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-paper-plane"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SueArt</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.1.0</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.0"></script>
+
+  <script src="/js/motion.js?v=7.1.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.0"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.0"></script>
+<script src="/js/post-details.js?v=7.1.0"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.0"></script>
+
+
+  
+
+  
+
+  
+
+  
+  
+
+<script src="//cdn1.lncld.net/static/js/3.11.1/av-min.js"></script>
+
+
+
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: '6l2XQvtl0e5jNkjGh7diX9EV-gzGzoHsz',
+    appKey: 'BKIyz5JsghhRU5MT9it3fFua',
+    placeholder: 'What w u like to say~ awa',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+
+
+  
+
+
+  
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') { next = next.nextSibling }
+        if (next && next.nodeName.toLowerCase() === 'br') { next.parentNode.removeChild(next) }
+      }
+    });
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      document.getElementById(all[i].inputID + '-Frame').parentNode.className += ' has-jax';
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+<script>
+  $('.highlight').each(function(i, e) {
+    var $wrap = $('<div>').addClass('highlight-wrap');
+    $(e).after($wrap);
+    $wrap.append($('<button>').addClass('copy-btn').append('复制').on('click', function(e) {
+      var code = $(this).parent().find('.code').find('.line').map(function(i, e) {
+        return $(e).text();
+      }).toArray().join('\n');
+      var ta = document.createElement('textarea');
+      var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+      ta.style.top = yPosition + 'px'; // Prevent page scroll
+      ta.style.position = 'absolute';
+      ta.style.opacity = '0';
+      ta.readOnly = true;
+      ta.value = code;
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, code.length);
+      ta.readOnly = false;
+      var result = document.execCommand('copy');
+      
+      ta.blur(); // For iOS
+      $(this).blur();
+    })).on('mouseleave', function(e) {
+      var $b = $(this).find('.copy-btn');
+      setTimeout(function() {
+        $b.text('复制');
+      }, 300);
+    }).append(e);
+  })
+</script>
+
+
+  
+
+  
+
+</body>
+
+<script type="text/javascript" src="/js/crash_cheat.js"></script>
+
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/src/clicklove.js"></script>
+
+</html>
